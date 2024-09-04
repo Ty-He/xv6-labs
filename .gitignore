@@ -1,0 +1,5 @@
+_*
+.gdbinit
+.clangd
+.cache
+xv6.out
