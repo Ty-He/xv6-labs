@@ -146,6 +146,9 @@ UPROGS=\
 	$U/_primes\
 	$U/_find\
 	$U/_xargs\
+	$U/_trace\
+	$U/_sysinfotest\
+	
 
 # for test
 #fs.img: mkfs/mkfs README $(UEXTRA) $(UPROGS)
@@ -193,7 +196,8 @@ qemu-gdb: $K/kernel .gdbinit fs.img
 ##  FOR testing lab grading script
 ##
 
-LAB=util
+# LAB=util
+LAB=syscall
 
 ifneq ($(V),@)
 GRADEFLAGS += -v

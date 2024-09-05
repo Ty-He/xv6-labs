@@ -45,7 +45,7 @@ fdalloc(struct file *f)
   for(fd = 0; fd < NOFILE; fd++){
     if(p->ofile[fd] == 0){
       p->ofile[fd] = f;
-      return fd;
+;      return fd;
     }
   }
   return -1;

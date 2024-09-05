@@ -5,9 +5,11 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "sysinfo.h"
 
 struct cpu cpus[NCPU];
 
+// process
 struct proc proc[NPROC];
 
 struct proc *initproc;
@@ -56,6 +58,18 @@ procinit(void)
       p->state = UNUSED;
       p->kstack = KSTACK((int) (p - proc));
   }
+}
+
+// the size of not UNUSED proc
+uint proc_used_size(void) 
+{
+  uint size = 0;
+  for (int i = 0; i < NPROC; ++i) {
+    acquire(&proc[i].lock);
+    if (proc[i].state != UNUSED) ++size;
+    release(&proc[i].lock);
+  }
+  return size;
 }
 
 // Must be called with interrupts disabled,
@@ -124,6 +138,8 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
+  // default not trace
+  p->mask = 0;
 
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
@@ -295,6 +311,7 @@ fork(void)
     return -1;
   }
   np->sz = p->sz;
+  np->mask = p->mask;
 
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
@@ -692,4 +709,21 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+void trace(int mask) 
+{
+  myproc()->mask = mask;
+}
+
+int sysinfo(uint64 addr)
+{
+  struct sysinfo sinfo;
+  sinfo.freemem = kfsize();
+  sinfo.nproc = proc_used_size();
+  struct proc* p = myproc();
+  if (copyout(p->pagetable, addr, (char*)&sinfo, sizeof(sinfo)) < 0) {
+    return -1;
+  }
+  return 0;
 }

@@ -91,3 +91,20 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+// trace
+uint64 sys_trace(void) 
+{
+  int mask;
+  argint(0, &mask);
+  trace(mask);
+  return 0;
+}
+
+// sysinfo
+uint64 sys_sysinfo(void)
+{
+  uint64 pinfo;
+  argaddr(0, &pinfo);
+  return sysinfo(pinfo); 
+}
